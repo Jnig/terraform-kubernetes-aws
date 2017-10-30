@@ -32,7 +32,7 @@ module "kubernetes" {
     ntp_servers = "<comma seperated list>"
     proxy_servers = "<proxy with port>"
 }
-```hcl
+hcl```
 
 Known limitations
 ------------

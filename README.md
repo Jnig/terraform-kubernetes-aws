@@ -16,7 +16,7 @@ resource "aws_key_pair" "ssh" {
 }
 
 module "kubernetes" {
-    source = "github.com/Jnig/terraform-kubernetes-aws"
+    source = "github.com/Jnig/terraform-kubernetes-aws?ref=v0.1"
     name = "devops-dev-cluster"
 
     ssh_key = "${aws_key_pair.ssh.key_name}"

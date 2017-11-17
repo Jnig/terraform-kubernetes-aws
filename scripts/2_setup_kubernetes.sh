@@ -26,7 +26,7 @@ function setup_kubectl {
 }
 
 function setup_network {
-    curl -s https://raw.githubusercontent.com/coreos/flannel/v0.9.0/Documentation/kube-flannel.yml | sed -e 's#10.244.0.0/16#100.96.0.0/11#' > /tmp/flannel.yaml
+    curl -s https://raw.githubusercontent.com/coreos/flannel/v0.9.1/Documentation/kube-flannel.yml | sed -e 's#10.244.0.0/16#100.96.0.0/11#' > /tmp/flannel.yaml
     su ubuntu -c "kubectl apply -f /tmp/flannel.yaml"
 }
 function setup_dashboard {

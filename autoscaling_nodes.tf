@@ -63,11 +63,11 @@ resource "aws_launch_configuration" "nodes" {
 
 resource "aws_autoscaling_group" "nodes" {
   name_prefix               = "${var.name}-nodes-"
-  max_size                  = 1
-  min_size                  = 1
+  max_size                  = "${var.node_asg_max}"
+  min_size                  = "${var.node_asg_min}"
   health_check_grace_period = 300
   health_check_type         = "EC2"
-  desired_capacity          = 1
+  desired_capacity          = "${var.node_asg_desired}"
   force_delete              = true
   launch_configuration      = "${aws_launch_configuration.nodes.name}"
   vpc_zone_identifier       = ["${data.aws_subnet_ids.vpc.ids}"]

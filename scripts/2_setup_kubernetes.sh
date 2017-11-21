@@ -65,16 +65,35 @@ function join_node {
     ./installation/3_join.sh
 }
 
+function join_exists {
+    aws s3api head-object --bucket $(cat /etc/terraform/s3_bucket) --key join --region eu-central-1 &> /dev/null 
+}
+
+
 function enable_completion {
     su ubuntu -c "echo 'source <(kubectl completion bash)' >> ~/.bashrc"
 }
 
+function switch_to_new_proxy {
+    old="$(grep 3128 /etc/kubernetes/manifests/kube-apiserver.yaml  | head -n 1 | awk '{ print $2}')"
+    new="$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)"
+    sed -i "s/$old/$new:3128/g" /etc/kubernetes/manifests/*	
+}
+
 if [ "$(cat /etc/terraform/role)" == "master" ]; then
-    init_master
-    setup_kubectl
-    setup_network
-    setup_dashboard
-    upload_join_command
+
+    join_exists
+    if [ "$?" == "255" ]; then
+      	init_master
+        setup_kubectl
+        setup_network
+        setup_dashboard
+        upload_join_command
+    else
+	    switch_to_new_proxy
+        setup_kubectl
+    fi
+
     enable_completion
 else
     join_node

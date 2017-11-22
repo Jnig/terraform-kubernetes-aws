@@ -112,8 +112,11 @@ set_hostname
 setup_ntp
 setup_docker
 
-attach_volume
-mount_volume
+if [ "$(cat /etc/terraform/role)" == "master" ]; then
+    attach_volume
+    mount_volume
+fi
+
 setup_kubelet
 
 

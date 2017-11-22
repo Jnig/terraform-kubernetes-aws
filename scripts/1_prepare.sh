@@ -63,7 +63,13 @@ function setup_ntp {
 
 function attach_volume {
     instanceId="$(curl -s http://169.254.169.254/latest/meta-data/instance-id)"
-    aws ec2 attach-volume --volume-id $(cat /etc/terraform/volume) --instance-id $instanceId --device /dev/xvdf --region eu-central-1
+    
+    until aws ec2 attach-volume --volume-id $(cat /etc/terraform/volume) --instance-id $instanceId --device /dev/xvdf --region eu-central-1 &> /dev/null
+    do 
+        echo "waiting for attach command to succeed" 
+        sleep 5
+    done
+
 }
 
 function mount_volume {
@@ -110,5 +116,4 @@ attach_volume
 mount_volume
 setup_kubelet
 
-sleep 300 # TODO: add check until load balancer get healthy
 

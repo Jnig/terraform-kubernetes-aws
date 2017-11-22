@@ -36,6 +36,6 @@ module "kubernetes" {
 
 Known limitations
 ------------
-* cluster doesn't recover from a terminated master
 * master is hardcoded in eu-central-1a
+* backups are missing
 

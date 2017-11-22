@@ -3,6 +3,8 @@
 . /etc/environment
 
 function init_master {
+dig +short $(cat /etc/terraform/load_balancer_dns) | head -1 > /etc/kubernetes/load_balancer_ip
+
 cat <<EOF >/etc/kubeadm_config
 apiVersion: kubeadm.k8s.io/v1alpha1
 kind: MasterConfiguration
@@ -12,8 +14,10 @@ networking:
 cloudProvider: aws
 tokenTTL: "0"
 api:
-  advertiseAddress: "$(dig +short $(cat /etc/terraform/load_balancer_dns))"
+  advertiseAddress: "$(cat /etc/kubernetes/load_balancer_ip)"
   bindPort: 443
+apiServerCertSANs:
+- $(cat /etc/terraform/load_balancer_dns)
 EOF
 
 kubeadm init --config /etc/kubeadm_config &> /var/log/kubeadm_init
@@ -82,9 +86,17 @@ function switch_to_new_proxy {
 
 function generate_kubelet_config {
     systemctl stop kubelet
+    
+    until ! systemctl status kubelet | grep -q running
+    do
+        echo "wait until kubelet is stopped"
+        sleep 5
+        systemctl stop kubelet
+    done
 
+    rm -rf /var/lib/kubelet/pki/*
     mv /etc/kubernetes/kubelet.conf /etc/kubernetes/kubelet.conf-$(date +%s)
-    kubeadm alpha phase kubeconfig kubelet --apiserver-advertise-address "$(dig +short $(cat /etc/terraform/load_balancer_dns))" --apiserver-bind-port 443
+    kubeadm alpha phase kubeconfig kubelet --apiserver-advertise-address "$(cat /etc/kubernetes/load_balancer_ip)" --apiserver-bind-port 443
 
     systemctl start kubelet
 }

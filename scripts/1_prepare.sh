@@ -109,3 +109,6 @@ setup_docker
 attach_volume
 mount_volume
 setup_kubelet
+
+sleep 300 # TODO: add check until load balancer get healthy
+

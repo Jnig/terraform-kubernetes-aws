@@ -80,6 +80,19 @@ function switch_to_new_proxy {
     sed -i "s/$old/$new:3128/g" /etc/kubernetes/manifests/*	
 }
 
+function generate_kubelet_config {
+    systemctl stop kubelet
+
+    mv /etc/kubernetes/kubelet.conf /etc/kubernetes/kubelet.conf-$(date +%s)
+    kubeadm alpha phase kubeconfig kubelet --apiserver-advertise-address "$(dig +short $(cat /etc/terraform/load_balancer_dns))" --apiserver-bind-port 443
+
+    systemctl start kubelet
+}
+
+function mark_master {
+    kubeadm alpha phase mark-master $(hostname)
+}
+
 if [ "$(cat /etc/terraform/role)" == "master" ]; then
 
     join_exists
@@ -91,6 +104,8 @@ if [ "$(cat /etc/terraform/role)" == "master" ]; then
         upload_join_command
     else
 	    switch_to_new_proxy
+        generate_kubelet_config
+        mark_master
         setup_kubectl
     fi
 

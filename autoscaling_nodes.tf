@@ -21,24 +21,31 @@ resource "aws_security_group" "nodes" {
   name        = "${var.name}-nodes"
   description = "${var.name}-nodes"
   vpc_id      = "${var.vpc}"
+}
 
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+resource "aws_security_group_rule" "nodes-ssh" {
+  type        = "ingress"
+  from_port   = 22
+  to_port     = 22
+  protocol    = "tcp"
+  cidr_blocks = ["0.0.0.0/0"]
 
-  egress {
-    from_port       = 0
-    to_port         = 0
-    protocol        = "-1"
-    cidr_blocks     = ["0.0.0.0/0"]
-  }
+  security_group_id = "${aws_security_group.nodes.id}"
+}
+
+resource "aws_security_group_rule" "nodes-egress" {
+  type        = "egress"
+  from_port   = 0
+  to_port     = 0
+  protocol    = "-1"
+
+  cidr_blocks = ["0.0.0.0/0"]
+
+  security_group_id = "${aws_security_group.nodes.id}"
 }
 
 resource "aws_security_group_rule" "master-node-communication" {
-  type            = "ingress"
+  type        = "ingress"
   from_port   = 0
   to_port     = 0
   protocol    = "-1"

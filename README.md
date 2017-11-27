@@ -26,7 +26,7 @@ module "kubernetes" {
     node_instance_type = "t2.large"
     node_asg_min = 1
     node_asg_max = 2
-    node_asg_desired = 1
+    node_asg_desired = 2
 
     vpc = "<vpc>"
     ntp_servers = "<comma seperated list>"

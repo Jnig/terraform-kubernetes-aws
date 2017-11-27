@@ -1,4 +1,14 @@
 
+data "aws_subnet" "region_1b" {
+  vpc_id = "${var.vpc}"
+  availability_zone = "eu-central-1b"
+}
+
+data "aws_subnet" "region_1c" {
+  vpc_id = "${var.vpc}"
+  availability_zone = "eu-central-1c"
+}
+
 data "template_file" "nodes" {
   template = "${file("${path.module}/scripts/userdata.tpl")}"
 
@@ -77,7 +87,7 @@ resource "aws_autoscaling_group" "nodes" {
   desired_capacity          = "${var.node_asg_desired}"
   force_delete              = true
   launch_configuration      = "${aws_launch_configuration.nodes.name}"
-  vpc_zone_identifier       = ["${data.aws_subnet_ids.vpc.ids}"]
+  vpc_zone_identifier       = ["${data.aws_subnet.region_1b.id}", "${data.aws_subnet.region_1c.id}"]
 
   tags = [
     {

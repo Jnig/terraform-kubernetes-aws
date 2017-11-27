@@ -1,6 +1,3 @@
-data "aws_subnet_ids" "vpc" {
-  vpc_id = "${var.vpc}"
-}
 
 data "aws_ami" "ubuntu" {
   most_recent = true

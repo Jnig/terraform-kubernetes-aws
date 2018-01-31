@@ -14,6 +14,18 @@ variable "node_asg_max" {}
 variable "node_asg_desired" {}
 variable "vpc" {}
 
-variable "ntp_servers" {}
+variable "proxy_servers" {
+    default = ""
+}
 
-variable "proxy_servers" {}
+variable "subnets" {
+    default = []
+}
+
+variable "kubernetes_version" {
+  default = "1.8.7"
+}
+
+variable "kubernetes_dashboard_version" {
+  default = "1.8.2"
+}

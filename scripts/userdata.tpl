@@ -5,6 +5,7 @@ cat <<EOF > /tmp/setup.sh
 cd /opt/
 
 function set_proxy {
+    test -z "${proxy}" && return 
     echo 'Acquire::http::Proxy "http://${proxy}";' > /etc/apt/apt.conf
 }
 
@@ -14,6 +15,8 @@ function install_packages {
 }
 
 function setup_cntlm {
+    test -z "${proxy}" && return 
+
     apt -y install cntlm 
     sed -i 's/^Proxy.*/Proxy ${proxy}/' /etc/cntlm.conf
     sed -i 's/^#Gateway.*/Gateway yes/' /etc/cntlm.conf
@@ -42,7 +45,6 @@ function setup_terraform_directory {
     mkdir /etc/terraform/
     echo "${s3_id}" > /etc/terraform/s3_bucket
     echo "${role}" > /etc/terraform/role
-    echo "${ntp_servers}" > /etc/terraform/ntp_servers
     echo "${volume}" > /etc/terraform/volume
     echo "${load_balancer_dns}" > /etc/terraform/load_balancer_dns
 }

@@ -1,6 +1,5 @@
 data "aws_subnet" "region_1a" {
-  vpc_id = "${var.vpc}"
-  availability_zone = "eu-central-1a"
+  id = "${var.subnets[0]}"
 }
 
 data "template_file" "master" {
@@ -9,7 +8,6 @@ data "template_file" "master" {
   vars {
     s3_id = "${aws_s3_bucket.cluster.id}"
     role = "master"
-    ntp_servers = "${replace("${var.ntp_servers}", ",", " ")}"
 
     proxy = "${replace("${var.proxy_servers}", ",", " ")}"
     volume = "${aws_ebs_volume.master.id}"
@@ -18,7 +16,7 @@ data "template_file" "master" {
 }
 
 resource "aws_ebs_volume" "master" {
-    availability_zone = "eu-central-1a"
+    availability_zone = "${data.aws_subnet.region_1a.availability_zone}"
     size = 40
     encrypted = true
     type = "gp2"

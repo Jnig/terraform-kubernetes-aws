@@ -1,12 +1,9 @@
-
 data "aws_subnet" "region_1b" {
-  vpc_id = "${var.vpc}"
-  availability_zone = "eu-central-1b"
+  id = "${var.subnets[1]}"
 }
 
 data "aws_subnet" "region_1c" {
-  vpc_id = "${var.vpc}"
-  availability_zone = "eu-central-1c"
+  id = "${var.subnets[2]}"
 }
 
 data "template_file" "nodes" {
@@ -15,7 +12,6 @@ data "template_file" "nodes" {
   vars {
     s3_id = "${aws_s3_bucket.cluster.id}"
     role = "node"
-    ntp_servers = "${replace("${var.ntp_servers}", ",", " ")}"
 
     proxy = "${replace("${var.proxy_servers}", ",", " ")}"
     volume = ""
@@ -26,11 +22,22 @@ data "template_file" "nodes" {
 }
 
 
-
 resource "aws_security_group" "nodes" {
   name        = "${var.name}-nodes"
   description = "${var.name}-nodes"
   vpc_id      = "${var.vpc}"
+
+}
+
+resource "aws_security_group_rule" "nodes-self" {
+  type        = "ingress"
+  from_port   = 0
+  to_port     = 0  
+  protocol    = "-1"
+
+  self = true
+
+  security_group_id = "${aws_security_group.nodes.id}"
 }
 
 resource "aws_security_group_rule" "nodes-ssh" {

@@ -8,6 +8,7 @@ dig +short $(cat /etc/terraform/load_balancer_dns) | head -1 > /etc/kubernetes/l
 cat <<EOF >/etc/kubeadm_config
 apiVersion: kubeadm.k8s.io/v1alpha1
 kind: MasterConfiguration
+kubernetesVersion: ${kubernetes_version}
 networking:
   serviceSubnet: 100.64.0.0/13
   podSubnet: 100.96.0.0/11
@@ -34,7 +35,7 @@ function setup_network {
     su ubuntu -c "kubectl apply -f /tmp/flannel.yaml"
 }
 function setup_dashboard {
-    su ubuntu -c "kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v1.7.1/src/deploy/recommended/kubernetes-dashboard.yaml"
+    su ubuntu -c "kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v${kubernetes_dashboard_version}/src/deploy/recommended/kubernetes-dashboard.yaml"
     cat <<EOF >/tmp/dashboard_admin.yaml
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRoleBinding
@@ -115,7 +116,7 @@ if [ "$(cat /etc/terraform/role)" == "master" ]; then
         setup_dashboard
         upload_join_command
     else
-	    switch_to_new_proxy
+	      test -n "$http_proxy" && switch_to_new_proxy
         generate_kubelet_config
         mark_master
         setup_kubectl

@@ -14,7 +14,10 @@ function set_hostname {
 
 function setup_docker {
     apt -y install docker.io 
-    
+    usermod -a -G docker ubuntu
+
+    test -z "$http_proxy" && return
+
     mkdir /etc/systemd/system/docker.service.d/
     cat << EOF > /etc/systemd/system/docker.service.d/http-proxy.conf
 [Service]
@@ -22,25 +25,27 @@ Environment="HTTP_PROXY=http://localhost:3128/" "HTTPS_PROXY=http://localhost:31
 EOF
     systemctl daemon-reload
     systemctl restart docker
-    usermod -a -G docker ubuntu
 }
 
 
 function setup_kubelet {
     apt-get update && apt-get install -y apt-transport-https
 
-    https_proxy="localhost:3128" curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+    curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
 
     cat <<EOF >/etc/apt/sources.list.d/kubernetes.list
 deb http://apt.kubernetes.io/ kubernetes-xenial main
 EOF
 
     apt update
-    apt install -y kubelet kubeadm kubectl
+    apt install -y kubelet=${kubernetes_version}-* kubeadm=${kubernetes_version}-* kubectl=${kubernetes_version}-* kubernetes-cni=0.5.1-*
     
     ip="$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)"
+    
+    if [ -n "$http_proxy" ]; then
+      echo "Environment='HTTP_PROXY=http://$ip:3128/' 'HTTPS_PROXY=http://$ip:3128/' 'NO_PROXY=localhost,127.0.0.1,.conti.de,.contiwan.com'" >> /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+    fi
 
-    echo "Environment='HTTP_PROXY=http://$ip:3128/' 'HTTPS_PROXY=http://$ip:3128/' 'NO_PROXY=localhost,127.0.0.1,.conti.de,.contiwan.com'" >> /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
     echo "Environment='KUBELET_EXTRA_ARGS=--cloud-provider=aws'" >> /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
 
     sed -i 's/10.96.0.10/100.64.0.10/g' /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
@@ -49,16 +54,14 @@ EOF
 }
 
 function setup_ntp {
-    apt install -y ntp
+    apt install -y chrony
 
-    sed -i 's/^pool.*//' /etc/ntp.conf
+    sed -i 's/^pool.*//' /etc/
 
-    for line in $(cat /etc/terraform/ntp_servers)          
-    do          
-        echo "server $line" >> /etc/ntp.conf
-    done
+    echo "server 169.254.169.123 prefer iburst" >> /etc/chrony.conf
 
-    systemctl restart ntp
+    systemctl restart chrony
+    systemctl enable chrony
 }
 
 function attach_volume {

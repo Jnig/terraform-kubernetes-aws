@@ -29,13 +29,12 @@ module "kubernetes" {
     node_asg_desired = 2
 
     vpc = "<vpc>"
-    ntp_servers = "<comma seperated list>"
+    subnets = ["subnet1", "subnet2", "subnet3"]
     proxy_servers = "<proxy with port>"
 }
 ```
 
 Known limitations
 ------------
-* master is hardcoded in eu-central-1a
 * backups are missing
 

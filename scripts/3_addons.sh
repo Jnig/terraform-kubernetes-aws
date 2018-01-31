@@ -31,6 +31,11 @@ EOF
   kubectl apply -f /tmp/tiller.yml
 
   helm init --service-account tiller
+
+  until kubectl rollout status deployment/tiller-deploy -n kube-system
+  do
+    echo "waiting for tiller deployment"
+  done
 }
 
 function setup_autoscaler {
@@ -50,7 +55,7 @@ nodeSelector:
 awsRegion: eu-central-1
 EOF
   if [ -n "$http_proxy" ]; then
-    echo "proxy: \"$http_proxy\"" >> /tmp/autoscaler.yml
+    echo "proxy: \"$(cat /etc/terraform/load_balancer_dns):3128\"" >> /tmp/autoscaler.yml
   fi
 
   cat <<EOF > /tmp/autoscaler_patch
@@ -80,3 +85,6 @@ EOF
   helm install ./cluster-autoscaler --name autoscaler -f /tmp/autoscaler.yml --namespace kube-system
 }
 
+install_helm
+setup_helm
+setup_autoscaler

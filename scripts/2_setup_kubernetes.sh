@@ -26,8 +26,12 @@ kubeadm init --config /etc/kubeadm_config &> /var/log/kubeadm_init
 
 function setup_kubectl {
     mkdir -p /home/ubuntu/.kube
+
     cp -i /etc/kubernetes/admin.conf /home/ubuntu/.kube/config
     chown ubuntu:ubuntu /home/ubuntu/.kube/config
+
+    mkdir -p /root/.kube
+    cp -i /etc/kubernetes/admin.conf /root/.kube/config
 }
 
 function setup_network {

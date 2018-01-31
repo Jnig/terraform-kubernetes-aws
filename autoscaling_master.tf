@@ -51,6 +51,13 @@ resource "aws_security_group" "master" {
     security_groups = ["${aws_security_group.nodes.id}"]
   }
 
+  ingress {
+    from_port   = 0
+    to_port     = 0  
+    protocol    = "-1"
+
+    self = true
+  }
 
   egress {
     from_port       = 0
@@ -120,6 +127,13 @@ resource "aws_elb" "master" {
     instance_port     = 443
     instance_protocol = "tcp"
     lb_port           = 443
+    lb_protocol       = "tcp"
+  }
+
+  listener {
+    instance_port     = 3128
+    instance_protocol = "tcp"
+    lb_port           = 3128
     lb_protocol       = "tcp"
   }
 

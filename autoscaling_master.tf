@@ -75,6 +75,10 @@ resource "aws_launch_configuration" "master" {
   user_data        = "${data.template_file.master.rendered}"
   iam_instance_profile = "${aws_iam_instance_profile.cluster.id}"
 
+  root_block_device {
+    volume_size = 60
+  }
+
   lifecycle {
     create_before_destroy = true
   }

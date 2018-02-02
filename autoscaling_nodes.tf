@@ -80,6 +80,10 @@ resource "aws_launch_configuration" "nodes" {
   user_data        = "${data.template_file.nodes.rendered}"
   iam_instance_profile = "${aws_iam_instance_profile.cluster.id}"
 
+  root_block_device {
+    volume_size = 60
+  }
+
   lifecycle {
     create_before_destroy = true
   }

@@ -110,6 +110,25 @@ function mark_master {
     kubeadm alpha phase mark-master $(hostname)
 }
 
+function create_storage_class {
+  cat <<EOF >/tmp/storage_class.yaml
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: standard
+  annotations:
+    storageclass.kubernetes.io/is-default-class: true
+provisioner: kubernetes.io/aws-ebs
+parameters:
+  type: gp2
+reclaimPolicy: Retain
+mountOptions:
+  - debug
+EOF
+
+  su ubuntu -c "kubectl apply -f /tmp/storage_class.yaml"
+}
+
 if [ "$(cat /etc/terraform/role)" == "master" ]; then
 
     join_exists
@@ -119,6 +138,7 @@ if [ "$(cat /etc/terraform/role)" == "master" ]; then
         setup_network
         setup_dashboard
         upload_join_command
+        create_storage_class
     else
 	      test -n "$http_proxy" && switch_to_new_proxy
         generate_kubelet_config

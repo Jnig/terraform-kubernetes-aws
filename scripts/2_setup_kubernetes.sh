@@ -137,10 +137,10 @@ function setup_iptables {
 
 
 if [ "$(cat /etc/terraform/role)" == "master" ]; then
+    setup_iptables
 
     join_exists
     if [ "$?" == "255" ]; then
-        setup_iptables
       	init_master
         setup_kubectl
         setup_network

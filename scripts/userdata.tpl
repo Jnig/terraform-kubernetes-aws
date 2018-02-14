@@ -28,7 +28,7 @@ function setup_cntlm {
 
     ip="$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)"
     if [ "${role}" == "master" ]; then
-      ip=$(dig +short ${load_balancer_dns} | head -1)"
+      ip="$(dig +short ${load_balancer_dns} | head -1)"
     fi
 
     echo -e "export http_proxy=\$ip:3128\nexport https_proxy=\$ip:3128\nexport no_proxy=localhost,169.254.169.254,\$ip" >> /etc/environment

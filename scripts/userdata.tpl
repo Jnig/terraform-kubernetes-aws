@@ -58,7 +58,22 @@ function setup_terraform_directory {
     dig +short ${load_balancer_dns} | head -1 > /etc/terraform/load_balancer_ip
 }
 
+function setup_iptables {
+  # aws nlb does direct routing
+  # that means the packages are forwarded with the same source ip 
+  # which doesn't work when sender and receiver are equal
+  echo "#!/bin/sh -e" > /etc/rc.local
+  echo "iptables -t nat -A OUTPUT -p tcp -d $(cat /etc/terraform/load_balancer_ip) --dport 443 -j DNAT --to-destination 127.0.0.1:443" >> /etc/rc.local
+  echo "iptables -t nat -A OUTPUT -p tcp -d $(cat /etc/terraform/load_balancer_ip) --dport 3128 -j DNAT --to-destination 127.0.0.1:3128" >> /etc/rc.local
+  echo "exit 0" >> /etc/rc.local
+
+  /etc/rc.local
+}
+
 setup_terraform_directory
+if [ "$(cat /etc/terraform/role)" == "master" ]; then
+  setup_iptables
+}
 
 set_proxy
 install_packages

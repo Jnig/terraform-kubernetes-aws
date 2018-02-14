@@ -27,6 +27,10 @@ function setup_cntlm {
     systemctl restart cntlm
 
     ip="$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)"
+    if [ "$(cat /etc/terraform/role)" == "master" ]; then
+      ip="$(cat /etc/terraform/load_balancer_ip)"
+    fi
+
     echo -e "export http_proxy=\$ip:3128\nexport https_proxy=\$ip:3128\nexport no_proxy=localhost,169.254.169.254,\$ip" >> /etc/environment
     . /etc/environment
 }
@@ -40,7 +44,9 @@ function setup {
    ./installation/1_prepare.sh 
    ./installation/2_setup_kubernetes.sh
 
-   ./installation/3_addons.sh
+   if [ "$(cat /etc/terraform/role)" == "master" ]; then
+     ./installation/3_addons.sh
+   fi
 }
 
 function setup_terraform_directory {
@@ -49,6 +55,7 @@ function setup_terraform_directory {
     echo "${role}" > /etc/terraform/role
     echo "${volume}" > /etc/terraform/volume
     echo "${load_balancer_dns}" > /etc/terraform/load_balancer_dns
+    dig +short ${load_balancer_dns} | head -1 > /etc/terraform/load_balancer_ip
 }
 
 setup_terraform_directory

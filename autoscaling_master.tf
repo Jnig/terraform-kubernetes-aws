@@ -1,3 +1,7 @@
+data "aws_vpc" "selected" {
+  id = "${var.vpc}"
+}
+
 data "aws_subnet" "region_1a" {
   id = "${var.subnets[0]}"
 }
@@ -11,7 +15,7 @@ data "template_file" "master" {
 
     proxy = "${replace("${var.proxy_servers}", ",", " ")}"
     volume = "${aws_ebs_volume.master.id}"
-    load_balancer_dns = "${aws_elb.master.dns_name}"
+    load_balancer_dns = "${aws_lb.master.dns_name}"
   }
 }
 
@@ -43,6 +47,9 @@ resource "aws_security_group" "master" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+
+
 
   ingress {
     from_port   = 0
@@ -96,7 +103,7 @@ resource "aws_autoscaling_group" "master" {
   launch_configuration      = "${aws_launch_configuration.master.name}"
   vpc_zone_identifier       = ["${data.aws_subnet.region_1a.id}"]
 
-  load_balancers  = ["${aws_elb.master.id}"]
+  target_group_arns         = ["${aws_lb_target_group.master_443.arn}"]
 
   tags = [
     {
@@ -122,36 +129,33 @@ resource "aws_autoscaling_group" "master" {
 }
 
 
-resource "aws_elb" "master" {
+resource "aws_lb" "master" {
   name = "${var.name}-master"
   internal        = true
   subnets         = ["${data.aws_subnet.region_1a.id}"]
-  security_groups = ["${aws_security_group.master.id}"]
-
-  listener {
-    instance_port     = 443
-    instance_protocol = "tcp"
-    lb_port           = 443
-    lb_protocol       = "tcp"
-  }
-
-  listener {
-    instance_port     = 3128
-    instance_protocol = "tcp"
-    lb_port           = 3128
-    lb_protocol       = "tcp"
-  }
-
-  health_check {
-    healthy_threshold   = 2
-    unhealthy_threshold = 2
-    timeout             = 3
-    target              = "HTTPS:443/healthz"
-    interval            = 30
-  }
+  load_balancer_type = "network"
 
   tags = {
     Name = "${var.name}-master"
   }
 
+}
+
+
+resource "aws_lb_listener" "master" {
+  load_balancer_arn = "${aws_lb.master.arn}"
+  port              = "443"
+  protocol          = "TCP"
+
+  default_action {
+    target_group_arn = "${aws_lb_target_group.master_443.arn}"
+    type             = "forward"
+  }
+}
+
+resource "aws_lb_target_group" "master_443" {
+  name     = "${var.name}-master-443"
+  port     = 443
+  protocol = "TCP"
+  vpc_id   = "${var.vpc}"
 }

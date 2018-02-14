@@ -3,7 +3,6 @@
 . /etc/environment
 
 function init_master {
-dig +short $(cat /etc/terraform/load_balancer_dns) | head -1 > /etc/kubernetes/load_balancer_ip
 
 cat <<EOF >/etc/kubeadm_config
 apiVersion: kubeadm.k8s.io/v1alpha1
@@ -15,7 +14,7 @@ networking:
 cloudProvider: aws
 tokenTTL: "0"
 api:
-  advertiseAddress: "$(cat /etc/kubernetes/load_balancer_ip)"
+  advertiseAddress: "$(cat /etc/terraform/load_balancer_ip)"
   bindPort: 443
 apiServerCertSANs:
 - $(cat /etc/terraform/load_balancer_dns)
@@ -83,12 +82,6 @@ function enable_completion {
     su ubuntu -c "echo 'source <(kubectl completion bash)' >> ~/.bashrc"
 }
 
-function switch_to_new_proxy {
-    old="$(grep 3128 /etc/kubernetes/manifests/kube-apiserver.yaml  | head -n 1 | awk '{ print $2}')"
-    new="$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)"
-    sed -i "s/$old/$new:3128/g" /etc/kubernetes/manifests/*	
-}
-
 function generate_kubelet_config {
     systemctl stop kubelet
     
@@ -101,7 +94,7 @@ function generate_kubelet_config {
 
     rm -rf /var/lib/kubelet/pki/*
     mv /etc/kubernetes/kubelet.conf /etc/kubernetes/kubelet.conf-$(date +%s)
-    kubeadm alpha phase kubeconfig kubelet --apiserver-advertise-address "$(cat /etc/kubernetes/load_balancer_ip)" --apiserver-bind-port 443
+    kubeadm alpha phase kubeconfig kubelet --apiserver-advertise-address "$(cat /etc/terraform/load_balancer_ip)" --apiserver-bind-port 443
 
     systemctl start kubelet
 }
@@ -129,10 +122,25 @@ EOF
   su ubuntu -c "kubectl apply -f /tmp/storage_class.yaml"
 }
 
+function setup_iptables {
+  # aws nlb does direct routing
+  # that means the packages are forwarded with the same source ip 
+  # which doesn't work when sender and receiver are equal
+  echo "#!/bin/sh -e" > /etc/rc.local
+  echo "iptables -t nat -A OUTPUT -p tcp -d $(cat /etc/terraform/load_balancer_ip) --dport 443 -j DNAT --to-destination 127.0.0.1:443" >> /etc/rc.local
+  echo "iptables -t nat -A OUTPUT -p tcp -d $(cat /etc/terraform/load_balancer_ip) --dport 3128 -j DNAT --to-destination 127.0.0.1:3128" >> /etc/rc.local
+  echo "exit 0" >> /etc/rc.local
+
+  /etc/rc.local
+}
+
+
+
 if [ "$(cat /etc/terraform/role)" == "master" ]; then
 
     join_exists
     if [ "$?" == "255" ]; then
+        setup_iptables
       	init_master
         setup_kubectl
         setup_network
@@ -140,7 +148,6 @@ if [ "$(cat /etc/terraform/role)" == "master" ]; then
         upload_join_command
         create_storage_class
     else
-	      test -n "$http_proxy" && switch_to_new_proxy
         generate_kubelet_config
         mark_master
         setup_kubectl

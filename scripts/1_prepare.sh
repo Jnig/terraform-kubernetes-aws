@@ -110,6 +110,7 @@ function mount_volume {
     mount -a
 }
 
+
 set_hostname
 
 setup_ntp

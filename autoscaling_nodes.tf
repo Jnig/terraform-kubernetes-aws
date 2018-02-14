@@ -16,7 +16,7 @@ data "template_file" "nodes" {
     proxy = "${replace("${var.proxy_servers}", ",", " ")}"
     volume = ""
 
-    load_balancer_dns = "${aws_elb.master.dns_name}"
+    load_balancer_dns = "${aws_lb.master.dns_name}"
   }
 
 }

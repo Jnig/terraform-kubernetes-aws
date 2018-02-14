@@ -28,7 +28,7 @@ function setup_cntlm {
 
     ip="$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)"
     if [ "${role}" == "master" ]; then
-      ip="$(dig +short ${load_balancer_dns} | head -1)"
+      ip="\$(/etc/terraform/load_balancer_ip)"
     fi
 
     echo -e "export http_proxy=\$ip:3128\nexport https_proxy=\$ip:3128\nexport no_proxy=localhost,169.254.169.254,\$ip" >> /etc/environment
@@ -62,9 +62,9 @@ function setup_iptables {
   # aws nlb does direct routing
   # that means the packages are forwarded with the same source ip 
   # which doesn't work when sender and receiver are equal
-  echo "#!/bin/sh -e" > /etc/rc.local
-  echo "iptables -t nat -A OUTPUT -p tcp -d $(cat /etc/terraform/load_balancer_ip) --dport 443 -j DNAT --to-destination 127.0.0.1:443" >> /etc/rc.local
-  echo "iptables -t nat -A OUTPUT -p tcp -d $(cat /etc/terraform/load_balancer_ip) --dport 3128 -j DNAT --to-destination 127.0.0.1:3128" >> /etc/rc.local
+  
+  echo "iptables -t nat -A OUTPUT -p tcp -d \$(cat /etc/terraform/load_balancer_ip) --dport 443 -j DNAT --to-destination 127.0.0.1:443" >> /etc/rc.local
+  echo "iptables -t nat -A OUTPUT -p tcp -d \$(cat /etc/terraform/load_balancer_ip) --dport 3128 -j DNAT --to-destination 127.0.0.1:3128" >> /etc/rc.local
   echo "exit 0" >> /etc/rc.local
 
   /etc/rc.local

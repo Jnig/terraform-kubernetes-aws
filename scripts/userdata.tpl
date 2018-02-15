@@ -63,8 +63,7 @@ function setup_iptables {
   # that means the packages are forwarded with the same source ip 
   # which doesn't work when sender and receiver are equal
   echo "#!/bin/sh -e" > /etc/rc.local
-  echo "iptables -t nat -A OUTPUT -p tcp -d \$(cat /etc/terraform/load_balancer_ip) --dport 443 -j DNAT --to-destination 127.0.0.1:443" >> /etc/rc.local
-  echo "iptables -t nat -A OUTPUT -p tcp -d \$(cat /etc/terraform/load_balancer_ip) --dport 3128 -j DNAT --to-destination 127.0.0.1:3128" >> /etc/rc.local
+  echo "ip route add local \$(cat /etc/terraform/load_balancer_ip) dev eth0  proto kernel  scope host  src \$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)" >> /etc/rc.local
   echo "exit 0" >> /etc/rc.local
 
   /etc/rc.local

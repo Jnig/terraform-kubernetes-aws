@@ -28,8 +28,13 @@ module "kubernetes" {
     node_asg_max = 2
     node_asg_desired = 2
 
+    #aws ec2 describe-vpcs
     vpc = "<vpc>"
+
+    # aws ec2 describe-subnets --filters Name=vpc-id,Values=<vpc>
+    # tag all subnets with the name of the cluster: kubernetes.io/cluster/<name>
     subnets = ["subnet1", "subnet2", "subnet3"]
+
     proxy_servers = "<proxy with port>"
 }
 ```

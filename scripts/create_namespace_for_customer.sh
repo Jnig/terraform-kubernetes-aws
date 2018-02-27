@@ -49,7 +49,6 @@ function checkcommand {
 }
 
 function cleanup {
-return 0
   rm $KEYFILE >/dev/null  2>&1
   rm $CRSFILE >/dev/null  2>&1
   rm $CRTFILE >/dev/null  2>&1

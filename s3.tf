@@ -50,6 +50,13 @@ resource "aws_s3_bucket_object" "maint1" {
   server_side_encryption = "AES256"
 }
 
+resource "aws_s3_bucket_object" "createnamespace" {
+  bucket = "${aws_s3_bucket.cluster.id}"
+  key    = "scripts/maintenance/create_namespace_for_customer.sh"
+  content = "${file("${path.module}/scripts/create_namespace_for_customer.sh")}"
+  server_side_encryption = "AES256"
+}
+
 resource "aws_s3_bucket_object" "kill" {
   bucket = "${aws_s3_bucket.cluster.id}"
   key    = "scripts/maintenance/10_kill.sh"

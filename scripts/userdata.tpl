@@ -33,6 +33,10 @@ function setup_cntlm {
 
     echo -e "export http_proxy=\$ip:3128\nexport https_proxy=\$ip:3128\nexport no_proxy=localhost,169.254.169.254,\$ip" >> /etc/environment
     . /etc/environment
+     
+    # restart proxy every 4h
+    (crontab -l 2>/dev/null; echo "0 */4 * * * /bin/systemctl restart cntlm") | crontab -
+
 }
 
 function copy_script_directory {

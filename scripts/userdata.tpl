@@ -33,11 +33,16 @@ function setup_cntlm {
 
     echo -e "export http_proxy=\$ip:3128\nexport https_proxy=\$ip:3128\nexport no_proxy=localhost,169.254.169.254,\$ip" >> /etc/environment
     . /etc/environment
+     
+    # restart proxy every 4h
+    (crontab -l 2>/dev/null; echo "0 */4 * * * /opt/proxy_healthcheck.sh ${proxy}") | crontab -
+
 }
 
 function copy_script_directory {
     aws s3 cp s3://${s3_id}/scripts . --region eu-central-1 --recursive
     chmod +x installation/*.sh
+    chmod +x maintenance/*.sh
 }
 
 function setup {

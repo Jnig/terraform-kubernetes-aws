@@ -35,13 +35,14 @@ function setup_cntlm {
     . /etc/environment
      
     # restart proxy every 4h
-    (crontab -l 2>/dev/null; echo "0 */4 * * * /bin/systemctl restart cntlm") | crontab -
+    (crontab -l 2>/dev/null; echo "0 */4 * * * /opt/proxy_healthcheck.sh ${proxy}") | crontab -
 
 }
 
 function copy_script_directory {
     aws s3 cp s3://${s3_id}/scripts . --region eu-central-1 --recursive
     chmod +x installation/*.sh
+    chmod +x maintenance/*.sh
 }
 
 function setup {

@@ -57,6 +57,13 @@ resource "aws_s3_bucket_object" "kill" {
   server_side_encryption = "AES256"
 }
 
+resource "aws_s3_bucket_object" "check_proxy" {
+  bucket = "${aws_s3_bucket.cluster.id}"
+  key    = "scripts/maintenance/proxy_healthcheck.sh"
+  content = "${file("${path.module}/scripts/proxy_healthcheck.sh")}"
+  server_side_encryption = "AES256"
+}
+
 resource "aws_s3_bucket_object" "example_nginx" {
   bucket = "${aws_s3_bucket.cluster.id}"
   key    = "scripts/examples/nginx.yaml"

@@ -39,3 +39,11 @@ resource "aws_iam_role_policy" "policy" {
   policy =  "${data.template_file.role_policy.rendered}"
 }
 
+
+resource "aws_iam_role_policy" "additional" {
+  count = "${var.iam_policy == "" ? 0 : 1}"
+  name = "additional"
+  role = "${aws_iam_role.cluster.id}"
+
+  policy =  "${var.iam_policy}"
+}

@@ -29,3 +29,7 @@ variable "kubernetes_version" {
 variable "kubernetes_dashboard_version" {
   default = "1.8.2"
 }
+
+variable "iam_policy" {
+   default =   ""
+}

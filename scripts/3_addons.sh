@@ -85,6 +85,11 @@ EOF
   helm install ./cluster-autoscaler --name autoscaler -f /tmp/autoscaler.yml --namespace kube-system
 }
 
+function setup_external_dns {
+  helm install --name external-dns stable/external-dns --set rbac.create=true --namespace kube-system
+}
+
 install_helm
 setup_helm
 setup_autoscaler
+setup_external_dns

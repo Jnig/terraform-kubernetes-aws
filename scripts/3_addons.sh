@@ -89,7 +89,12 @@ function setup_external_dns {
   helm install --name external-dns stable/external-dns --set rbac.create=true --namespace kube-system
 }
 
+function setup_heapster {
+  helm install --name heapster stable/heapster --set rbac.create=true --namespace kube-system
+}
+
 install_helm
 setup_helm
 setup_autoscaler
 setup_external_dns
+setup_heapster

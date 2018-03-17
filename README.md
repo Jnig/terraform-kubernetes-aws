@@ -36,6 +36,16 @@ module "kubernetes" {
     subnets = ["subnet1", "subnet2", "subnet3"]
 
     proxy_servers = "<proxy with port>"
+    
+    # optional add addtional certificates to the nodes
+    # useful if you have private docker repositories
+    additional-certificates = <<EOF
+-----BEGIN CERTIFICATE-----
+.... 
+-----END CERTIFICATE-----    
+EOF
+    
+    
 }
 ```
 

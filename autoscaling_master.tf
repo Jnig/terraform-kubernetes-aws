@@ -25,7 +25,10 @@ resource "aws_ebs_volume" "master" {
     encrypted = true
     type = "gp2"
     tags {
-        Name = "${var.name}-master"
+      Name        = "${var.name}-master"
+      Application = "${var.tagging_common_Application}"
+      Billing_ID  = "${var.tagging_common_Billing_ID}"
+      Owner       = "${var.tagging_common_Owner}"
     }
 }
 
@@ -48,9 +51,6 @@ resource "aws_security_group" "master" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-
-
-
   ingress {
     from_port   = 0
     to_port     = 0
@@ -72,7 +72,14 @@ resource "aws_security_group" "master" {
     protocol        = "-1"
     cidr_blocks     = ["0.0.0.0/0"]
   }
+
+  tags {
+    Application = "${var.tagging_common_Application}"
+    Billing_ID  = "${var.tagging_common_Billing_ID}"
+    Owner       = "${var.tagging_common_Owner}"
+  }
 }
+
 resource "aws_launch_configuration" "master" {
   name_prefix      = "${var.name}-master-"
   image_id         = "${data.aws_ami.ubuntu.id}"
@@ -118,16 +125,30 @@ resource "aws_autoscaling_group" "master" {
     },
     {
       key                 = "k8s.io/role/master"
-      value               = 1 
+      value               = 1
       propagate_at_launch = true
     },
+    {
+      key                 = "Application"
+      value               = "${var.tagging_common_Application}"
+      propagate_at_launch = true
+    },
+    {
+      key                 = "Billing_ID"
+      value               = "${var.tagging_common_Billing_ID}"
+      propagate_at_launch = true
+    },
+    {
+      key                 = "Owner"
+      value               = "${var.tagging_common_Owner}"
+      propagate_at_launch = true
+    }
   ]
 
   lifecycle {
     create_before_destroy = true
   }
 }
-
 
 resource "aws_lb" "master" {
   name = "${var.name}-master"
@@ -136,11 +157,13 @@ resource "aws_lb" "master" {
   load_balancer_type = "network"
 
   tags = {
-    Name = "${var.name}-master"
+    Name        = "${var.name}-master"
+    Application = "${var.tagging_common_Application}"
+    Billing_ID  = "${var.tagging_common_Billing_ID}"
+    Owner       = "${var.tagging_common_Owner}"
   }
 
 }
-
 
 resource "aws_lb_listener" "master" {
   load_balancer_arn = "${aws_lb.master.arn}"

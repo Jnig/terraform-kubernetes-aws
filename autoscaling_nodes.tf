@@ -18,15 +18,18 @@ data "template_file" "nodes" {
 
     load_balancer_dns = "${aws_lb.master.dns_name}"
   }
-
 }
-
 
 resource "aws_security_group" "nodes" {
   name        = "${var.name}-nodes"
   description = "${var.name}-nodes"
   vpc_id      = "${var.vpc}"
 
+  tags {
+    Application = "${var.tagging_common_Application}"
+    Billing_ID  = "${var.tagging_common_Billing_ID}"
+    Owner       = "${var.tagging_common_Owner}"
+  }
 }
 
 resource "aws_security_group_rule" "nodes-self" {
@@ -117,6 +120,21 @@ resource "aws_autoscaling_group" "nodes" {
       value               = 1 
       propagate_at_launch = true
     },
+    {
+      key                 = "Application"
+      value               = "${var.tagging_common_Application}"
+      propagate_at_launch = true
+    },
+    {
+      key                 = "Billing_ID"
+      value               = "${var.tagging_common_Billing_ID}"
+      propagate_at_launch = true
+    },
+    {
+      key                 = "Owner"
+      value               = "${var.tagging_common_Owner}"
+      propagate_at_launch = true
+    }
   ]
 
   lifecycle {

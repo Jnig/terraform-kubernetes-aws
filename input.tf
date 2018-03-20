@@ -33,3 +33,7 @@ variable "kubernetes_dashboard_version" {
 variable "iam_policy" {
    default =   ""
 }
+
+variable "additional_certificates" {
+   default =   ""
+}

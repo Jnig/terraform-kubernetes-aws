@@ -11,7 +11,12 @@ function set_hostname {
     hostname > /etc/hostname
 }
 
-
+function install_cert {
+    if [ -f /opt/installation/additional.crt ]; then
+       mv /opt/installation/additional.crt /usr/local/share/ca-certificates
+       update-ca-certificates
+    fi
+}
 function setup_docker {
     apt -y install docker.io 
     usermod -a -G docker ubuntu
@@ -112,6 +117,7 @@ function mount_volume {
 
 
 set_hostname
+install_cert
 
 setup_ntp
 setup_docker

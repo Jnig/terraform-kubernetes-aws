@@ -34,6 +34,6 @@ variable "iam_policy" {
    default =   ""
 }
 
-variable "additional-certificates" {
+variable "additional_certificates" {
    default =   ""
 }

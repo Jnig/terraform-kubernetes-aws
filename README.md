@@ -39,7 +39,7 @@ module "kubernetes" {
     
     # optional add addtional certificates to the nodes
     # useful if you have private docker repositories
-    additional-certificates = <<EOF
+    additional_certificates = <<EOF
 -----BEGIN CERTIFICATE-----
 .... 
 -----END CERTIFICATE-----    

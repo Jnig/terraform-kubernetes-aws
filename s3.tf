@@ -7,6 +7,8 @@ resource "aws_s3_bucket" "cluster" {
   versioning {
     enabled = true
   }
+
+  tags = "${var.additional_tags}"
 }
 
 data "template_file" "prepare" {
@@ -26,13 +28,13 @@ data "template_file" "prepare2" {
   }
 }
 
-
-
 resource "aws_s3_bucket_object" "prepare" {
   bucket = "${aws_s3_bucket.cluster.id}"
   key    = "scripts/installation/1_prepare.sh"
   content = "${data.template_file.prepare.rendered}"
   server_side_encryption = "AES256"
+
+  tags = "${var.additional_tags}"
 }
 
 resource "aws_s3_bucket_object" "prepare2" {
@@ -40,14 +42,17 @@ resource "aws_s3_bucket_object" "prepare2" {
   key    = "scripts/installation/2_setup_kubernetes.sh"
   content = "${data.template_file.prepare2.rendered}"
   server_side_encryption = "AES256"
-}
 
+  tags = "${var.additional_tags}"
+}
 
 resource "aws_s3_bucket_object" "maint1" {
   bucket = "${aws_s3_bucket.cluster.id}"
   key    = "scripts/maintenance/9_verify_network.sh"
   content = "${file("${path.module}/scripts/9_verify_network.sh")}"
   server_side_encryption = "AES256"
+
+  tags = "${var.additional_tags}"
 }
 
 resource "aws_s3_bucket_object" "createnamespace" {
@@ -55,6 +60,8 @@ resource "aws_s3_bucket_object" "createnamespace" {
   key    = "scripts/maintenance/create_namespace_for_customer.sh"
   content = "${file("${path.module}/scripts/create_namespace_for_customer.sh")}"
   server_side_encryption = "AES256"
+
+  tags = "${var.additional_tags}"
 }
 
 resource "aws_s3_bucket_object" "kill" {
@@ -62,6 +69,8 @@ resource "aws_s3_bucket_object" "kill" {
   key    = "scripts/maintenance/10_kill.sh"
   content = "${file("${path.module}/scripts/10_kill.sh")}"
   server_side_encryption = "AES256"
+
+  tags = "${var.additional_tags}"
 }
 
 resource "aws_s3_bucket_object" "check_proxy" {
@@ -69,6 +78,8 @@ resource "aws_s3_bucket_object" "check_proxy" {
   key    = "scripts/maintenance/proxy_healthcheck.sh"
   content = "${file("${path.module}/scripts/proxy_healthcheck.sh")}"
   server_side_encryption = "AES256"
+
+  tags = "${var.additional_tags}"
 }
 
 resource "aws_s3_bucket_object" "example_nginx" {
@@ -76,6 +87,8 @@ resource "aws_s3_bucket_object" "example_nginx" {
   key    = "scripts/examples/nginx.yaml"
   content = "${file("${path.module}/scripts/examples/nginx.yaml")}"
   server_side_encryption = "AES256"
+
+  tags = "${var.additional_tags}"
 }
 
 data "template_file" "addons" {
@@ -93,4 +106,6 @@ resource "aws_s3_bucket_object" "addons" {
   key    = "scripts/installation/3_addons.sh"
   content = "${data.template_file.addons.rendered}"
   server_side_encryption = "AES256"
+
+  tags = "${var.additional_tags}"
 }

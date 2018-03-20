@@ -18,15 +18,13 @@ data "template_file" "nodes" {
 
     load_balancer_dns = "${aws_lb.master.dns_name}"
   }
-
 }
-
 
 resource "aws_security_group" "nodes" {
   name        = "${var.name}-nodes"
   description = "${var.name}-nodes"
   vpc_id      = "${var.vpc}"
-
+  tags = "${var.additional_tags}"
 }
 
 resource "aws_security_group_rule" "nodes-self" {
@@ -101,23 +99,14 @@ resource "aws_autoscaling_group" "nodes" {
   launch_configuration      = "${aws_launch_configuration.nodes.name}"
   vpc_zone_identifier       = ["${data.aws_subnet.region_1b.id}", "${data.aws_subnet.region_1c.id}"]
 
-  tags = [
-    {
-      key                 = "Name"
-      value               = "${var.name}-node"
-      propagate_at_launch = true
-    },
-    {
-      key                 = "KubernetesCluster"
-      value               = "${var.name}"
-      propagate_at_launch = true
-    },
-    {
-      key                 = "k8s.io/role/node"
-      value               = 1 
-      propagate_at_launch = true
-    },
-  ]
+  tags = ["${concat(
+      list(map("key", "Name", "value", "${var.name}-node", "propagate_at_launch", true),
+        map("key", "KubernetesCluster", "value", "${var.name}", "propagate_at_launch", true),
+        map("key", "k8s.io/role/node", "value", 1, "propagate_at_launch", true),
+      ),
+      local.tags_asg_format
+   )}"]
+
 
   lifecycle {
     create_before_destroy = true

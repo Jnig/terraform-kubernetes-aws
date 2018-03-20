@@ -38,15 +38,6 @@ variable "additional_certificates" {
   default = ""
 }
 
-variable "tagging_common_Application" {
-  default = ""
+variable "additional_tags" {
+  default = {}
 }
-
-variable "tagging_common_Billing_ID" {
-  default = ""
-}
-
-variable "tagging_common_Owner" {
-  default = ""
-}
-

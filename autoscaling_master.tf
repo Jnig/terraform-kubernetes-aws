@@ -24,12 +24,7 @@ resource "aws_ebs_volume" "master" {
     size = 40
     encrypted = true
     type = "gp2"
-    tags {
-      Name        = "${var.name}-master"
-      Application = "${var.tagging_common_Application}"
-      Billing_ID  = "${var.tagging_common_Billing_ID}"
-      Owner       = "${var.tagging_common_Owner}"
-    }
+    tags = "${merge(var.additional_tags, map("Name", "${var.name}-master"))}"
 }
 
 resource "aws_security_group" "master" {
@@ -73,11 +68,7 @@ resource "aws_security_group" "master" {
     cidr_blocks     = ["0.0.0.0/0"]
   }
 
-  tags {
-    Application = "${var.tagging_common_Application}"
-    Billing_ID  = "${var.tagging_common_Billing_ID}"
-    Owner       = "${var.tagging_common_Owner}"
-  }
+tags = "${var.additional_tags}"
 }
 
 resource "aws_launch_configuration" "master" {
@@ -112,38 +103,13 @@ resource "aws_autoscaling_group" "master" {
 
   target_group_arns         = ["${aws_lb_target_group.master_443.arn}"]
 
-  tags = [
-    {
-      key                 = "Name"
-      value               = "${var.name}-master"
-      propagate_at_launch = true
-    },
-    {
-      key                 = "KubernetesCluster"
-      value               = "${var.name}"
-      propagate_at_launch = true
-    },
-    {
-      key                 = "k8s.io/role/master"
-      value               = 1
-      propagate_at_launch = true
-    },
-    {
-      key                 = "Application"
-      value               = "${var.tagging_common_Application}"
-      propagate_at_launch = true
-    },
-    {
-      key                 = "Billing_ID"
-      value               = "${var.tagging_common_Billing_ID}"
-      propagate_at_launch = true
-    },
-    {
-      key                 = "Owner"
-      value               = "${var.tagging_common_Owner}"
-      propagate_at_launch = true
-    }
-  ]
+  tags = ["${concat(
+      list(map("key", "Name", "value", "${var.name}-master", "propagate_at_launch", true),
+        map("key", "KubernetesCluster", "value", "${var.name}", "propagate_at_launch", true),
+        map("key", "k8s.io/role/master", "value", 1, "propagate_at_launch", true),
+      ),
+      local.tags_asg_format
+   )}"]
 
   lifecycle {
     create_before_destroy = true
@@ -155,14 +121,8 @@ resource "aws_lb" "master" {
   internal        = true
   subnets         = ["${data.aws_subnet.region_1a.id}"]
   load_balancer_type = "network"
-
-  tags = {
-    Name        = "${var.name}-master"
-    Application = "${var.tagging_common_Application}"
-    Billing_ID  = "${var.tagging_common_Billing_ID}"
-    Owner       = "${var.tagging_common_Owner}"
-  }
-
+  
+  tags = "${merge(var.additional_tags, map("Name", "${var.name}-master"))}"
 }
 
 resource "aws_lb_listener" "master" {

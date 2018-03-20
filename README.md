@@ -46,9 +46,11 @@ module "kubernetes" {
 EOF
 
   # optional add common tags, e.g. for corporate billing
-  tagging_common_Application = ""
-  tagging_common_Billing_ID = ""
-  tagging_common_Owner = ""
+  additional_tags = {
+    Application = ""
+    Billing_ID = ""
+    Owner = ""
+  }
 }
 ```
 

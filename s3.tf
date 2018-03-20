@@ -8,11 +8,7 @@ resource "aws_s3_bucket" "cluster" {
     enabled = true
   }
 
-  tags {
-    Application = "${var.tagging_common_Application}"
-    Billing_ID  = "${var.tagging_common_Billing_ID}"
-    Owner       = "${var.tagging_common_Owner}"
-  }
+  tags = "${var.additional_tags}"
 }
 
 data "template_file" "prepare" {
@@ -38,11 +34,7 @@ resource "aws_s3_bucket_object" "prepare" {
   content = "${data.template_file.prepare.rendered}"
   server_side_encryption = "AES256"
 
-  tags {
-    Application = "${var.tagging_common_Application}"
-    Billing_ID  = "${var.tagging_common_Billing_ID}"
-    Owner       = "${var.tagging_common_Owner}"
-  }
+  tags = "${var.additional_tags}"
 }
 
 resource "aws_s3_bucket_object" "prepare2" {
@@ -51,11 +43,7 @@ resource "aws_s3_bucket_object" "prepare2" {
   content = "${data.template_file.prepare2.rendered}"
   server_side_encryption = "AES256"
 
-  tags {
-    Application = "${var.tagging_common_Application}"
-    Billing_ID  = "${var.tagging_common_Billing_ID}"
-    Owner       = "${var.tagging_common_Owner}"
-  }
+  tags = "${var.additional_tags}"
 }
 
 resource "aws_s3_bucket_object" "maint1" {
@@ -64,11 +52,7 @@ resource "aws_s3_bucket_object" "maint1" {
   content = "${file("${path.module}/scripts/9_verify_network.sh")}"
   server_side_encryption = "AES256"
 
-  tags {
-    Application = "${var.tagging_common_Application}"
-    Billing_ID  = "${var.tagging_common_Billing_ID}"
-    Owner       = "${var.tagging_common_Owner}"
-  }
+  tags = "${var.additional_tags}"
 }
 
 resource "aws_s3_bucket_object" "createnamespace" {
@@ -77,11 +61,7 @@ resource "aws_s3_bucket_object" "createnamespace" {
   content = "${file("${path.module}/scripts/create_namespace_for_customer.sh")}"
   server_side_encryption = "AES256"
 
-  tags {
-    Application = "${var.tagging_common_Application}"
-    Billing_ID  = "${var.tagging_common_Billing_ID}"
-    Owner       = "${var.tagging_common_Owner}"
-  }
+  tags = "${var.additional_tags}"
 }
 
 resource "aws_s3_bucket_object" "kill" {
@@ -90,11 +70,7 @@ resource "aws_s3_bucket_object" "kill" {
   content = "${file("${path.module}/scripts/10_kill.sh")}"
   server_side_encryption = "AES256"
 
-  tags {
-    Application = "${var.tagging_common_Application}"
-    Billing_ID  = "${var.tagging_common_Billing_ID}"
-    Owner       = "${var.tagging_common_Owner}"
-  }
+  tags = "${var.additional_tags}"
 }
 
 resource "aws_s3_bucket_object" "check_proxy" {
@@ -103,11 +79,7 @@ resource "aws_s3_bucket_object" "check_proxy" {
   content = "${file("${path.module}/scripts/proxy_healthcheck.sh")}"
   server_side_encryption = "AES256"
 
-  tags {
-    Application = "${var.tagging_common_Application}"
-    Billing_ID  = "${var.tagging_common_Billing_ID}"
-    Owner       = "${var.tagging_common_Owner}"
-  }
+  tags = "${var.additional_tags}"
 }
 
 resource "aws_s3_bucket_object" "example_nginx" {
@@ -116,11 +88,7 @@ resource "aws_s3_bucket_object" "example_nginx" {
   content = "${file("${path.module}/scripts/examples/nginx.yaml")}"
   server_side_encryption = "AES256"
 
-  tags {
-    Application = "${var.tagging_common_Application}"
-    Billing_ID  = "${var.tagging_common_Billing_ID}"
-    Owner       = "${var.tagging_common_Owner}"
-  }
+  tags = "${var.additional_tags}"
 }
 
 data "template_file" "addons" {
@@ -131,12 +99,6 @@ data "template_file" "addons" {
     node_asg_min = "${var.node_asg_min}"
     node_asg_max = "${var.node_asg_max}"
   }
-
-  tags {
-    Application = "${var.tagging_common_Application}"
-    Billing_ID  = "${var.tagging_common_Billing_ID}"
-    Owner       = "${var.tagging_common_Owner}"
-  }
 }
 
 resource "aws_s3_bucket_object" "addons" {
@@ -145,9 +107,5 @@ resource "aws_s3_bucket_object" "addons" {
   content = "${data.template_file.addons.rendered}"
   server_side_encryption = "AES256"
 
-  tags {
-    Application = "${var.tagging_common_Application}"
-    Billing_ID  = "${var.tagging_common_Billing_ID}"
-    Owner       = "${var.tagging_common_Owner}"
-  }
+  tags = "${var.additional_tags}"
 }

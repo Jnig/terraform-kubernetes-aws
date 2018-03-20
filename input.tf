@@ -34,6 +34,10 @@ variable "iam_policy" {
   default = ""
 }
 
+variable "additional_certificates" {
+  default = ""
+}
+
 variable "tagging_common_Application" {
   default = ""
 }
@@ -45,3 +49,4 @@ variable "tagging_common_Billing_ID" {
 variable "tagging_common_Owner" {
   default = ""
 }
+

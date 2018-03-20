@@ -1,6 +1,7 @@
 resource "aws_iam_role" "cluster" {
-  name = "${var.name}"
-  path = "/"
+  name        = "${var.name}"
+  description = "Kubernetes cluster master and worker nodes"
+  path        = "/"
 
   assume_role_policy = <<EOF
 {
@@ -32,17 +33,15 @@ data "template_file" "role_policy" {
   }
 }
 
-resource "aws_iam_role_policy" "policy" {
-  name = "test_policy"
-  role = "${aws_iam_role.cluster.id}"
-
-  policy =  "${data.template_file.role_policy.rendered}"
+resource "aws_iam_role_policy" "main" {
+  name        = "${var.name}-main"
+  role        = "${aws_iam_role.cluster.id}"
+  policy      =  "${data.template_file.role_policy.rendered}"
 }
 
 resource "aws_iam_role_policy" "additional" {
-  count = "${var.iam_policy == "" ? 0 : 1}"
-  name = "additional"
-  role = "${aws_iam_role.cluster.id}"
-
-  policy = "${var.iam_policy}"
+  count       = "${var.additional_iam_policy == "" ? 0 : 1}"
+  name        = "${var.name}-additional"
+  role        = "${aws_iam_role.cluster.id}"
+  policy      = "${var.additional_iam_policy}"
 }

@@ -30,7 +30,7 @@ variable "kubernetes_dashboard_version" {
   default = "1.8.2"
 }
 
-variable "iam_policy" {
+variable "additional_iam_policy" {
   default = ""
 }
 

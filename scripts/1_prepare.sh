@@ -18,7 +18,9 @@ function install_cert {
     fi
 }
 function setup_docker {
-    apt -y install docker.io 
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+    add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+    apt update && apt -y install docker-ce
     usermod -a -G docker ubuntu
 
     test -z "$http_proxy" && return

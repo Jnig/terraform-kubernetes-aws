@@ -45,7 +45,11 @@ deb http://apt.kubernetes.io/ kubernetes-xenial main
 EOF
 
     apt update
-    apt install -y kubelet=${kubernetes_version}-* kubeadm=${kubernetes_version}-* kubectl=${kubernetes_version}-* kubernetes-cni=0.5.1-*
+    if [[ "${kubernetes_version}" == 1.8* ]]; then
+      apt install -y kubelet=${kubernetes_version}-* kubeadm=${kubernetes_version}-* kubectl=${kubernetes_version}-* kubernetes-cni=0.5.1-*
+    else
+      apt install -y kubelet=${kubernetes_version}-* kubeadm=${kubernetes_version}-* kubectl=${kubernetes_version}-*
+    fi
     
     ip="$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)"
     

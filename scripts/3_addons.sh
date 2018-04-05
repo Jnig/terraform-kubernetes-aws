@@ -35,6 +35,7 @@ EOF
   until kubectl rollout status deployment/tiller-deploy -n kube-system
   do
     echo "waiting for tiller deployment"
+    sleep 5
   done
 }
 

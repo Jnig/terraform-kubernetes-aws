@@ -87,15 +87,21 @@ EOF
 }
 
 function setup_external_dns {
-  helm install --name external-dns stable/external-dns --set rbac.create=true --namespace kube-system
+  helm install --name external-dns stable/external-dns --set rbac.create=true,tolerations[0].effect=NoSchedule,tolerations[0].key=node-role.kubernetes.io/master,tolerations[0].operator=Exists,nodeSelector."node-role\.kubernetes\.io/master"="" --namespace kube-system
 }
 
 function setup_heapster {
   helm install --name heapster stable/heapster --set rbac.create=true --namespace kube-system
 }
 
+function setup_kube2iam {
+  helm install --name kube2iam stable/kube2iam --set=extraArgs.auto-discover-base-arn=true,rbac.create=true,host.iptables=true,host.interface=cni0 --namespace kube-system
+}
+
+
 install_helm
 setup_helm
 setup_autoscaler
 setup_external_dns
 setup_heapster
+setup_kube2iam

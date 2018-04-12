@@ -8,15 +8,18 @@ if [ $# -eq 0 ]; then
  exit 1
 fi
 
+#remove colon 
+PROXY_NAME=${PROXY_NAME%:*}
+
 nslookup $PROXY_NAME > /dev/null 2>&1 
 if [ $? -ne 0 ]; then
   echo "Parameter $PROXY_NAME is invalid, dns resolution not successful"
   exit 1
 fi 
 
-
-LOG=/var/log/$(echo $0)_$PROXY_NAME.log
-IP_FILE=/tmp/$(echo $0)_$PROXY_NAME.ip
+COMMAND_NAME=$(basename $0)
+LOG=/var/log/${COMMAND_NAME}_$PROXY_NAME.log
+IP_FILE=/tmp/${COMMAND_NAME}_$PROXY_NAME.ip
 
 touch $IP_FILE 
 touch $LOG
@@ -29,6 +32,8 @@ if [[ "${IP}" != "$(cat ${IP_FILE})" ]]; then
     echo -n "old proxy ip: $(cat ${IP_FILE}) | " >> $LOG
     echo "restarting cntlm" >> $LOG
     systemctl restart cntlm
+else
+    echo "$(date) proxy ip still ok" >> $LOG
 fi
 echo -n "${IP}" > ${IP_FILE}
 

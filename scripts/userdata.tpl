@@ -35,7 +35,7 @@ function setup_cntlm {
     . /etc/environment
      
     # restart proxy every 4h
-    (crontab -l 2>/dev/null; echo "0 */4 * * * /opt/proxy_healthcheck.sh ${proxy}") | crontab -
+    (crontab -l 2>/dev/null; echo "0 */4 * * * /opt/maintenance/proxy_healthcheck.sh ${proxy}") | crontab -
 
 }
 

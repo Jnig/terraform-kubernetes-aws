@@ -31,6 +31,8 @@ function setup_kubectl {
 
     mkdir -p /root/.kube
     cp -i /etc/kubernetes/admin.conf /root/.kube/config
+
+    aws s3 cp /etc/kubernetes/admin.conf s3://$(cat /etc/terraform/s3_bucket) --region eu-central-1
 }
 
 function setup_network {

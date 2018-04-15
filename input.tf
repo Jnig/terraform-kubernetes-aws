@@ -2,7 +2,7 @@ variable "name" {}
 variable "ssh_key" {}
 
 variable "master_instance_type" {
-  default = "t2.medium"
+  default = "t2.small"
 }
 
 variable "node_instance_type" {
@@ -40,4 +40,8 @@ variable "additional_certificates" {
 
 variable "additional_tags" {
   default = {}
+}
+
+variable "enable_kube2iam" {
+  default = true
 }

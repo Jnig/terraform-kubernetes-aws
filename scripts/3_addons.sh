@@ -95,7 +95,9 @@ function setup_heapster {
 }
 
 function setup_kube2iam {
-  helm install --name kube2iam stable/kube2iam --set=extraArgs.auto-discover-base-arn=true,rbac.create=true,host.iptables=true,host.interface=cni0 --namespace kube-system
+  if [ "${enable_kube2iam}" == "true" ]; then
+    helm install --name kube2iam stable/kube2iam --set=extraArgs.auto-discover-base-arn=true,rbac.create=true,host.iptables=true,host.interface=cni0 --namespace kube-system
+  fi
 }
 
 

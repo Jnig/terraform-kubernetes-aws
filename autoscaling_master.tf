@@ -28,7 +28,7 @@ resource "aws_ebs_volume" "master" {
 }
 
 resource "aws_security_group" "master" {
-  name        = "${var.name}-master"
+  name_prefix        = "${var.name}-master"
   description = "${var.name}-master"
   vpc_id      = "${var.vpc}"
 

@@ -1,5 +1,5 @@
 resource "aws_iam_role" "cluster" {
-  name        = "${var.name}"
+  name_prefix        = "${var.name}"
   description = "Kubernetes cluster master and worker nodes"
   path        = "/"
 
@@ -21,7 +21,7 @@ EOF
 }
 
 resource "aws_iam_instance_profile" "cluster" {
-  name = "${var.name}"
+  name_prefix = "${var.name}"
   role = "${aws_iam_role.cluster.name}"
 }
 

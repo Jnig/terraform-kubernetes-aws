@@ -21,7 +21,7 @@ data "template_file" "nodes" {
 }
 
 resource "aws_security_group" "nodes" {
-  name        = "${var.name}-nodes"
+  name_prefix        = "${var.name}-nodes"
   description = "${var.name}-nodes"
   vpc_id      = "${var.vpc}"
   tags = "${var.additional_tags}"

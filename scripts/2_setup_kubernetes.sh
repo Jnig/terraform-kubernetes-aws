@@ -39,26 +39,7 @@ function setup_network {
     curl -s https://raw.githubusercontent.com/coreos/flannel/v0.9.1/Documentation/kube-flannel.yml | sed -e 's#v0.9.0#v0.9.1#' | sed -e 's#10.244.0.0/16#100.96.0.0/11#' > /tmp/flannel.yaml
     su ubuntu -c "kubectl apply -f /tmp/flannel.yaml"
 }
-function setup_dashboard {
-    su ubuntu -c "kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v${kubernetes_dashboard_version}/src/deploy/recommended/kubernetes-dashboard.yaml"
-    cat <<EOF >/tmp/dashboard_admin.yaml
-apiVersion: rbac.authorization.k8s.io/v1beta1
-kind: ClusterRoleBinding
-metadata:
-  name: kubernetes-dashboard
-  labels:
-    k8s-app: kubernetes-dashboard
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: cluster-admin
-subjects:
-- kind: ServiceAccount
-  name: kubernetes-dashboard
-  namespace: kube-system
-EOF
-    su ubuntu -c "kubectl apply -f /tmp/dashboard_admin.yaml"
-}
+
 function upload_join_command {
     grep 'kubeadm join'  /var/log/kubeadm_init | aws s3 cp - s3://$(cat /etc/terraform/s3_bucket)/join --sse --region eu-central-1
 }
@@ -134,7 +115,6 @@ if [ "$(cat /etc/terraform/role)" == "master" ]; then
       	init_master
         setup_kubectl
         setup_network
-        setup_dashboard
         upload_join_command
         create_storage_class
     else

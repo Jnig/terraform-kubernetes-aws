@@ -99,6 +99,7 @@ data "template_file" "addons" {
     node_asg_min = "${var.node_asg_min}"
     node_asg_max = "${var.node_asg_max}"
     enable_kube2iam = "${var.enable_kube2iam}"
+    kubernetes_dashboard_version = "${var.kubernetes_dashboard_version}"
   }
 }
 

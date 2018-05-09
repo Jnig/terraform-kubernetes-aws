@@ -77,34 +77,12 @@ nodeSelector:
 awsRegion: eu-central-1
 EOF
   if [ -n "$http_proxy" ]; then
-    echo "proxy: \"$(cat /etc/terraform/load_balancer_dns):3128\"" >> /tmp/autoscaler.yml
+    echo "extraEnv:" >> /tmp/autoscaler.yml
+    echo "  HTTP_PROXY: \"$(cat /etc/terraform/load_balancer_dns):3128\"" >> /tmp/autoscaler.yml
+    echo "  HTTPS_PROXY: \"$(cat /etc/terraform/load_balancer_dns):3128\"" >> /tmp/autoscaler.yml
   fi
 
-  cat <<EOF > /tmp/autoscaler_patch
---- cluster-autoscaler/templates/deployment.yaml	1970-01-01 00:00:00.000000000 +0000
-+++ cluster-autoscaler2/templates/deployment.yaml	2018-01-31 11:19:27.888363305 +0000
-@@ -42,6 +42,12 @@
-             - --{{ $key }}{{ if $value }}={{ $value }}{{ end }}
-           {{- end }}
-           env:
-+          {{- if .Values.proxy }}
-+            - name: HTTP_PROXY
-+              value: "{{ .Values.proxy }}"
-+            - name: HTTPS_PROXY
-+              value: "{{ .Values.proxy }}"
-+          {{- end }}
-           {{- if eq .Values.cloudProvider "aws" }}
-             - name: AWS_REGION
-               value: "{{ .Values.awsRegion }}"
-EOF
-
-  cd /tmp
-  helm fetch stable/cluster-autoscaler --version=0.4.1
-  tar xfz cluster-autoscaler-0.4.1.tgz
-
-  patch cluster-autoscaler/templates/deployment.yaml < /tmp/autoscaler_patch
-
-  helm install ./cluster-autoscaler --name autoscaler -f /tmp/autoscaler.yml --namespace kube-system
+  helm upgrade -i autoscaler stable/cluster-autoscaler --namespace kube-system -f /tmp/autoscaler.yml
 }
 
 function setup_external_dns {

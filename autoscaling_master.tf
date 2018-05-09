@@ -68,7 +68,7 @@ resource "aws_security_group" "master" {
     cidr_blocks     = ["0.0.0.0/0"]
   }
 
-tags = "${var.additional_tags}"
+  tags = "${var.additional_tags}"
 }
 
 resource "aws_launch_configuration" "master" {
@@ -82,6 +82,7 @@ resource "aws_launch_configuration" "master" {
 
   root_block_device {
     volume_size = 60
+    volume_type = "gp2"
   }
 
   lifecycle {

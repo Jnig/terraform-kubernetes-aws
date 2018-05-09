@@ -80,6 +80,7 @@ resource "aws_launch_configuration" "nodes" {
 
   root_block_device {
     volume_size = 60
+    volume_type = "gp2"
   }
 
   lifecycle {

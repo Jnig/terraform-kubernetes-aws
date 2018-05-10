@@ -34,24 +34,8 @@ function setup_kubectl {
 
     aws s3 cp /etc/kubernetes/admin.conf s3://$(cat /etc/terraform/s3_bucket) --region eu-central-1
 
-    kubectl create serviceaccount cluster-admin -n kube-system
-    cat <<EOF >/tmp/cluster-admin.yaml
-    apiVersion: rbac.authorization.k8s.io/v1beta1
-    kind: ClusterRoleBinding
-    metadata:
-      name: cluster-admin
-      labels:
-        k8s-app: cluster-admin
-    roleRef:
-      apiGroup: rbac.authorization.k8s.io
-      kind: ClusterRole
-      name: cluster-admin
-    subjects:
-    - kind: ServiceAccount
-      name: cluster-admin
-      namespace: kube-system
-EOF
-    su ubuntu -c "kubectl apply -f /tmp/cluster-admin.yaml" -n kube-system
+    kubectl create serviceaccount dashboard-admin -n kube-system
+    kubectl create clusterrolebinding dashboard-admin --clusterrole=cluster-admin --serviceaccount=kube-system:dashboard-admin
 }
 
 function setup_network {

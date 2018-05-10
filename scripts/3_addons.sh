@@ -1,7 +1,7 @@
 function install_helm {
  cd /tmp
- wget https://storage.googleapis.com/kubernetes-helm/helm-v2.8.0-linux-amd64.tar.gz 
- tar xfz helm-v2.8.0-linux-amd64.tar.gz
+ wget https://storage.googleapis.com/kubernetes-helm/helm-v2.9.0-linux-amd64.tar.gz 
+ tar xfz helm-v2.9.0-linux-amd64.tar.gz
  mv linux-amd64/helm /usr/local/bin
 }
 

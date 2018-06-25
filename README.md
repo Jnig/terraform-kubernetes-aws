@@ -57,3 +57,10 @@ EOF
 Known limitations
 ------------
 * backups are missing
+
+Get kubernetes dashboard secret
+------
+```
+kubectl describe secret dashboard-admin -n kube-system
+```
+

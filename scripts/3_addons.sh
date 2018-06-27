@@ -75,6 +75,8 @@ rbac:
 nodeSelector:
     node-role.kubernetes.io/master: ""
 awsRegion: eu-central-1
+skipNodes:
+  withSystemPods: false
 EOF
   if [ -n "$http_proxy" ]; then
     echo "extraEnv:" >> /tmp/autoscaler.yml

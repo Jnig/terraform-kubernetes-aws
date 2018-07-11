@@ -97,7 +97,7 @@ metadata:
   namespace: $USERNAME
   name: deployment-manager-$USERNAME
 rules:
- - apiGroups: [\"\", \"extensions\", \"apps\"]
+ - apiGroups: [\"\", \"extensions\", \"apps\", \"autoscaling\"]
    resources: [\"*\"]
    verbs: [\"*\"]
 ")

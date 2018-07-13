@@ -16,6 +16,7 @@ data "template_file" "master" {
     proxy             = "${replace("${var.proxy_servers}", ",", " ")}"
     volume            = "${aws_ebs_volume.master.id}"
     load_balancer_dns = "${aws_lb.master.dns_name}"
+    net_plugin        = "${var.cluster_network_plugin}"
   }
 }
 

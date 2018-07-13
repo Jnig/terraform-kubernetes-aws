@@ -1,6 +1,11 @@
 variable "name" {}
 variable "ssh_key" {}
 
+variable "cluster_network_plugin" {
+  description = "The Pod networking CNI network plugin : flannel(default) / weave"
+  default     = "flannel"
+}
+
 variable "master_instance_type" {
   default = "t2.small"
 }

@@ -47,7 +47,7 @@ function copy_script_directory {
 
 function setup {
    ./installation/1_prepare.sh 
-   ./installation/2_setup_kubernetes.sh
+   ./installation/2_setup_kubernetes.sh ${net_plugin}
 
    if [ "${role}" == "master" ]; then
      ./installation/3_addons.sh

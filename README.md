@@ -51,6 +51,8 @@ EOF
     Billing_ID = ""
     Owner = ""
   }
+
+  # optionnal change network plugin: flannel(default) / weave
 }
 ```
 

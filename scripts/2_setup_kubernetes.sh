@@ -39,8 +39,23 @@ function setup_kubectl {
 }
 
 function setup_network {
-    curl -s https://raw.githubusercontent.com/coreos/flannel/v0.9.1/Documentation/kube-flannel.yml | sed -e 's#v0.9.0#v0.9.1#' | sed -e 's#10.244.0.0/16#100.96.0.0/11#' > /tmp/flannel.yaml
-    su ubuntu -c "kubectl apply -f /tmp/flannel.yaml"
+    plugin=$1
+    case $plugin in
+"weave")
+  echo "Setting up Weave Net"
+  curl -s "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')\&env.WEAVE_MTU=8912&env.IPALLOC_RANGE=100.96.0.0/11"  > /tmp/weave.yaml
+  su ubuntu -c "kubectl apply -f /tmp/weave.yaml" 
+  ;;
+"flannel")
+  echo "Setting up Flannel"
+  curl -s "https://raw.githubusercontent.com/coreos/flannel/v0.9.1/Documentation/kube-flannel.yml" | sed -e 's#v0.9.0#v0.9.1#' | sed -e 's#10.244.0.0/16#100.96.0.0/11#' > /tmp/flannel.yaml
+  su ubuntu -c "kubectl apply -f /tmp/flannel.yaml" 
+  ;;
+*)
+  echo "Unknown or no Network plugin set"
+  exit 1
+;;
+esac
 }
 
 function upload_join_command {
@@ -117,7 +132,7 @@ if [ "$(cat /etc/terraform/role)" == "master" ]; then
     if [ "$?" == "255" ]; then
       	init_master
         setup_kubectl
-        setup_network
+        setup_network $1
         upload_join_command
         create_storage_class
     else

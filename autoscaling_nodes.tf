@@ -10,31 +10,28 @@ data "template_file" "nodes" {
   template = "${file("${path.module}/scripts/userdata.tpl")}"
 
   vars {
-    s3_id = "${aws_s3_bucket.cluster.id}"
-    role = "node"
-
-    proxy = "${replace("${var.proxy_servers}", ",", " ")}"
-    volume = ""
-
+    s3_id             = "${aws_s3_bucket.cluster.id}"
+    role              = "node"
+    proxy             = "${replace("${var.proxy_servers}", ",", " ")}"
+    volume            = ""
     load_balancer_dns = "${aws_lb.master.dns_name}"
+    net_plugin        = "${var.cluster_network_plugin}"
   }
 }
 
 resource "aws_security_group" "nodes" {
-  name_prefix        = "${var.name}-nodes"
+  name_prefix = "${var.name}-nodes"
   description = "${var.name}-nodes"
   vpc_id      = "${var.vpc}"
-  tags = "${var.additional_tags}"
+  tags        = "${var.additional_tags}"
 }
 
 resource "aws_security_group_rule" "nodes-self" {
-  type        = "ingress"
-  from_port   = 0
-  to_port     = 0  
-  protocol    = "-1"
-
-  self = true
-
+  type              = "ingress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  self              = true
   security_group_id = "${aws_security_group.nodes.id}"
 }
 
@@ -49,33 +46,30 @@ resource "aws_security_group_rule" "nodes-ssh" {
 }
 
 resource "aws_security_group_rule" "nodes-egress" {
-  type        = "egress"
-  from_port   = 0
-  to_port     = 0
-  protocol    = "-1"
-
-  cidr_blocks = ["0.0.0.0/0"]
-
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = "${aws_security_group.nodes.id}"
 }
 
 resource "aws_security_group_rule" "master-node-communication" {
-  type        = "ingress"
-  from_port   = 0
-  to_port     = 0
-  protocol    = "-1"
+  type                     = "ingress"
+  from_port                = 0
+  to_port                  = 0
+  protocol                 = "-1"
   source_security_group_id = "${aws_security_group.master.id}"
-
-  security_group_id = "${aws_security_group.nodes.id}"
+  security_group_id        = "${aws_security_group.nodes.id}"
 }
 
 resource "aws_launch_configuration" "nodes" {
-  name_prefix      = "${var.name}-nodes-"
-  image_id         = "${data.aws_ami.ubuntu.id}"
-  instance_type    = "${var.node_instance_type}"
-  security_groups  = ["${aws_security_group.nodes.id}"]
-  key_name         = "${var.ssh_key}"
-  user_data        = "${data.template_file.nodes.rendered}"
+  name_prefix          = "${var.name}-nodes-"
+  image_id             = "${data.aws_ami.ubuntu.id}"
+  instance_type        = "${var.node_instance_type}"
+  security_groups      = ["${aws_security_group.nodes.id}"]
+  key_name             = "${var.ssh_key}"
+  user_data            = "${data.template_file.nodes.rendered}"
   iam_instance_profile = "${aws_iam_instance_profile.cluster.id}"
 
   root_block_device {
@@ -85,7 +79,7 @@ resource "aws_launch_configuration" "nodes" {
 
   lifecycle {
     create_before_destroy = true
-    ignore_changes = [ "image_id" ]
+    ignore_changes        = ["image_id"]
   }
 }
 
@@ -107,7 +101,6 @@ resource "aws_autoscaling_group" "nodes" {
       ),
       local.tags_asg_format
    )}"]
-
 
   lifecycle {
     create_before_destroy = true

@@ -91,8 +91,9 @@ function setup_external_dns {
   helm install --name external-dns stable/external-dns --set rbac.create=true,tolerations[0].effect=NoSchedule,tolerations[0].key=node-role.kubernetes.io/master,tolerations[0].operator=Exists,nodeSelector."node-role\.kubernetes\.io/master"="" --namespace kube-system
 }
 
-function setup_heapster {
-  helm install --name heapster stable/heapster --set rbac.create=true --namespace kube-system
+# moved from Heapster
+function setup_metrics-server {
+  helm install --name metrics-server stable/metrics-server --set rbac.create=true --namespace kube-system
 }
 
 function setup_kube2iam {
@@ -107,5 +108,5 @@ setup_helm
 setup_dashboard
 setup_autoscaler
 setup_external_dns
-setup_heapster
+setup_metrics-server
 setup_kube2iam

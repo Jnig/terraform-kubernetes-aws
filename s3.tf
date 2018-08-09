@@ -25,6 +25,7 @@ data "template_file" "prepare2" {
   vars {
     kubernetes_version = "${var.kubernetes_version}"
     kubernetes_dashboard_version = "${var.kubernetes_dashboard_version}"
+    kubernetes_disable_elb_security_rule_creation = "${var.kubernetes_disable_elb_security_rule_creation == true ? "true" : "false"}"
   }
 }
 

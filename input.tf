@@ -49,8 +49,14 @@ variable "subnets" {
 
 variable "kubernetes_version" {
   description = "The kubernetes version"
-  default     = "1.8.7"
+  default     = "1.9.10"
 }
+
+variable "kubernetes_disable_elb_security_rule_creation" {
+  description = "Disable the creation of a scurity rule for ELB LoadBalancer services in the nodes SG to work around the 50 security rule per SG limitation"
+  default     = "true"
+}
+
 
 variable "kubernetes_dashboard_version" {
   description = "The Kubernetes Dashboard version"

@@ -3,7 +3,8 @@
 . /etc/environment
 
 function init_master {
-
+# TODO create an alpha2 version for kube >= 1.12
+# In Kubernetes 1.11 and later, the default configuration can be printed out using the kubeadm config print-default command. It is recommended that you migrate your old v1alpha1 configuration to v1alpha2 using the kubeadm config migrate command, because v1alpha1 will be removed in Kubernetes 1.12.
 cat <<EOF >/etc/kubeadm_config
 apiVersion: kubeadm.k8s.io/v1alpha1
 kind: MasterConfiguration
@@ -20,7 +21,14 @@ apiServerCertSANs:
 - $(cat /etc/terraform/load_balancer_dns)
 EOF
 
-kubeadm init --config /etc/kubeadm_config &> /var/log/kubeadm_init
+# Create cloud-config
+cat <<EOF >/etc/kubernetes/cloud-config
+[global]
+DisableSecurityGroupIngress = ${kubernetes_disable_elb_security_rule_creation}
+EOF
+
+# Ignored cri errors due to a big in some kubeadm implementations
+kubeadm init --ignore-preflight-errors=cri --config /etc/kubeadm_config &> /var/log/kubeadm_init
 }
 
 function setup_kubectl {
@@ -59,7 +67,7 @@ esac
 }
 
 function upload_join_command {
-    grep 'kubeadm join'  /var/log/kubeadm_init | aws s3 cp - s3://$(cat /etc/terraform/s3_bucket)/join --sse --region eu-central-1
+    echo $(grep 'kubeadm join'  /var/log/kubeadm_init) --ignore-preflight-errors=cri  | aws s3 cp - s3://$(cat /etc/terraform/s3_bucket)/join --sse --region eu-central-1
 }
 
 function join_node {
@@ -122,7 +130,6 @@ EOF
 
   su ubuntu -c "kubectl apply -f /tmp/storage_class.yaml"
 }
-
 
 
 

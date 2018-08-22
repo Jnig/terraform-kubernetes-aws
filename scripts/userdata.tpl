@@ -11,7 +11,7 @@ function set_proxy {
 
 function install_packages {
     apt update
-    apt -y install awscli jq
+    apt -y install awscli jq zip
 }
 
 function setup_cntlm {

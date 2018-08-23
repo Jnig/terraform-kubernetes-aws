@@ -12,8 +12,10 @@ if [ $# -eq 0 ]; then
  exit 1
 fi
 
-if [[ "$USERNAME" =~ [^a-zA-Z0-9] ]]; then
-  echo "Parameter $USERNAME is invalid, only alpanumeric characters are allowed"
+regex='^[0-9a-z][a-z0-9\-]+[0-9a-z]$'
+if [[ ! "$USERNAME" =~ $regex ]]; then
+  echo "Parameter $USERNAME is invalid, must consist of lower case alphanumeric"
+  echo "characters or '-', and must start and end with an alphanumeric character."
   exit 1
 fi
 
@@ -176,12 +178,18 @@ if [ $? -ne 0 ]; then
   kubectl --kubeconfig=kubeconfig-$USERNAME.conf get pods -n $USERNAME
   exit 1
 fi 
+
+# zip files and delete afterwards
+echo "put all files into one zip"
+zip $USERNAME.zip $USERNAME.key $USERNAME.crt kubeconfig-$USERNAME.conf
+rm $USERNAME.key $USERNAME.crt kubeconfig-$USERNAME.conf
+
 echo ""
 echo "Success!!"
 echo "you can now access the cluster using the provided configuration, example"
 echo "kubectl --kubeconfig=kubeconfig-$USERNAME.conf get pods"
 echo ""
-echo "please ensure that you have the following files in your current working directory:"
+echo "please ensure that you have the following files paked in $USERNAME.zip in your current working directory:"
 echo " - Private Key: $USERNAME.key"
 echo " - Signed Cert: $USERNAME.crt"
 echo " - kubconfig  : kubeconfig-$USERNAME.conf"

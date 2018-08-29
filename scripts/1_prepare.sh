@@ -57,7 +57,7 @@ EOF
       echo "Environment='HTTP_PROXY=http://$ip:3128/' 'HTTPS_PROXY=http://$ip:3128/' 'NO_PROXY=localhost,127.0.0.1,.conti.de,.contiwan.com'" >> /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
     fi
 
-    echo "Environment='KUBELET_EXTRA_ARGS=--cloud-provider=aws'" >> /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+    echo "Environment='KUBELET_EXTRA_ARGS=--cloud-provider=aws --kube-reserved=cpu=80m,memory=200Mi,ephemeral-storage=1Gi --kube-reserved-cgroup=/kube-reserved --system-reserved=cpu=80m,memory=200Mi,ephemeral-storage=1Gi --system-reserved-cgroup=/system-reserved --enforce-node-allocatable=pods,system-reserved,kube-reserved'" >> /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
 
     sed -i 's/10.96.0.10/100.64.0.10/g' /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
     systemctl daemon-reload

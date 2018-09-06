@@ -3,6 +3,65 @@
 . /etc/environment
 
 function init_master {
+# Create the file regarding the version of K8s
+# in v1alpha1 if < kubeadm 1.11
+# in v1alpha2 if >= kubeadm 1.11
+
+# If we want to disable the 50 lb security group limit, we use SisableSecurityGroupIngress with cloud confg (setup later)
+# otherwise , we let the cloud config file empty (only [global] tag )
+
+if [ "${disable_security_group_limit}" == "true" ]; then
+
+cat <<EOF > /etc/kubernetes/cloud-config
+[global]
+DisableSecurityGroupIngress = true
+EOF
+
+else
+
+cat <<EOF > /etc/kubernetes/cloud-config
+[global]
+EOF
+
+fi
+
+
+# regarding the version of kubernetes, the setup for cloud config is different (unfortunatly)
+
+if [ "`printf "$kubernetes_version\n1.11.0" | sort -V | head -n 1`" == "1.11.0" ]; then
+
+cat <<EOF >/etc/kubeadm_config
+apiVersion: kubeadm.k8s.io/v1alpha2
+kind: MasterConfiguration
+kubernetesVersion: ${kubernetes_version}
+networking:
+  serviceSubnet: 100.64.0.0/13
+  podSubnet: 100.96.0.0/11
+tokenTTL: "0"
+api:
+  advertiseAddress: "$(cat /etc/terraform/load_balancer_ip)"
+  bindPort: 443
+# See https://github.com/kubernetes/kubernetes/blob/888546c3252530c6a3f219363edae2b4b1057287/CHANGELOG-1.11.md#new-deprecations
+apiServerExtraArgs:
+  cloud-provider: "aws"
+  cloud-config: "/etc/kubernetes/cloud-config"
+apiServerExtraVolumes:
+- name: cloud
+  hostPath: "/etc/kubernetes/cloud-config"
+  mountPath: "/etc/kubernetes/cloud-config"
+controllerManagerExtraArgs:
+  cloud-provider: "aws"
+  cloud-config: "/etc/kubernetes/cloud-config"
+controllerManagerExtraVolumes:
+- name: cloud
+  hostPath: "/etc/kubernetes/cloud-config"
+  mountPath: "/etc/kubernetes/cloud-config"
+apiServerCertSANs:
+- $(cat /etc/terraform/load_balancer_dns)
+EOF
+
+else
+
 
 cat <<EOF >/etc/kubeadm_config
 apiVersion: kubeadm.k8s.io/v1alpha1
@@ -19,6 +78,8 @@ api:
 apiServerCertSANs:
 - $(cat /etc/terraform/load_balancer_dns)
 EOF
+
+fi
 
 kubeadm init --config /etc/kubeadm_config &> /var/log/kubeadm_init
 }

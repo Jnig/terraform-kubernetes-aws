@@ -25,6 +25,7 @@ data "template_file" "prepare2" {
   vars {
     kubernetes_version = "${var.kubernetes_version}"
     kubernetes_dashboard_version = "${var.kubernetes_dashboard_version}"
+    disable_security_group_limit = "${var.disable_security_group_limit}"
   }
 }
 

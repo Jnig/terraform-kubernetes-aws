@@ -76,3 +76,8 @@ variable "enable_kube2iam" {
   description = "Enable Kube2IAM to add security to AWS API access from pods"
   default     = true
 }
+
+variable "disable_security_group_limit" {
+  description = "use cloud config to set DisableSecurityGroupIngress to true, this will allow more than 50 Load Balancer Service in the cluster"
+  default     = false
+}
